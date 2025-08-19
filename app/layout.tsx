@@ -6,12 +6,13 @@ export const metadata: Metadata = {
   description: "Next.js Routing project - NoteHub",
 };
 
-interface LayoutProps {
+export default function RootLayout({
+  children,
+  modal,
+}: {
   children: React.ReactNode;
-  modal?: React.ReactNode; // робимо modal опціональним
-}
-
-export default function RootLayout({ children, modal }: LayoutProps) {
+  modal: React.ReactNode;
+}) {
   return (
     <html lang="en">
       <body>

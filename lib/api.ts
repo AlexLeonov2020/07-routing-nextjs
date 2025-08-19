@@ -1,48 +1,30 @@
+import axios from "axios";
 import { Note } from "@/types/note";
 
-interface FetchNotesResponseRaw {
-  notes: Note[];
-  total_pages: number;
+const API_URL = "http://localhost:3001/notes"; 
+
+interface FetchNotesParams {
+  page?: number;
+  perPage?: number;
+  search?: string;
+  tag?: string;
 }
 
-export interface FetchNotesResponse {
-  notes: Note[];
-  totalPages: number;
-}
+export const fetchNotes = async (params: FetchNotesParams = {}): Promise<Note[]> => {
+  const res = await axios.get<Note[]>(API_URL, { params });
+  return res.data;
+};
 
-export async function getNotes(page = 1, limit = 6): Promise<FetchNotesResponse> {
-  const res = await fetch(
-    `https://raw.githubusercontent.com/AlexLeonov2020/api-data/main/notes.json`
-  );
+export const fetchNoteById = async (id: string): Promise<Note> => {
+  const res = await axios.get<Note>(`${API_URL}/${id}`);
+  return res.data;
+};
 
-  if (!res.ok) {
-    throw new Error("Failed to fetch notes");
-  }
+export const createNote = async (note: Omit<Note, "id">): Promise<Note> => {
+  const res = await axios.post<Note>(API_URL, note);
+  return res.data;
+};
 
-  const data: FetchNotesResponseRaw = await res.json();
-
-  return {
-    notes: data.notes,
-    totalPages: data.total_pages,
-  };
-}
-
-export async function getNoteById(id: string): Promise<Note> {
-  const res = await fetch(
-    `https://raw.githubusercontent.com/AlexLeonov2020/api-data/main/notes.json`
-  );
-
-  if (!res.ok) {
-    throw new Error("Failed to fetch note");
-  }
-
-  const data: FetchNotesResponseRaw = await res.json();
-
-  const note = data.notes.find((n) => n.id === id);
-
-  if (!note) {
-    throw new Error("Note not found");
-  }
-
-  return note;
-}
+export const deleteNote = async (id: string): Promise<void> => {
+  await axios.delete(`${API_URL}/${id}`);
+};
