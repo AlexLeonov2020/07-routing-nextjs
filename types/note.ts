@@ -1,23 +1,25 @@
+import { FetchNotesRes } from "@/lib/api";
+
 export interface Note {
   id: string;
   title: string;
   content: string;
+  tag: NoteTag;
   createdAt: string;
   updatedAt: string;
-  tag: string;
 }
 
-export interface NoteByTag {
-  id: string;
+export interface CreateNote {
   title: string;
-  content: string;
-  createdAt: string;
-  updatedAt: string;
+  content?: string;
+  tag: NoteTag;
 }
 
-export interface FetchNotesParams {
-  page?: number;
-  search?: string;
-  tag?: string;
-  perPage?: number;
-}
+export type NoteTag = "Work" | "Todo" | "Personal" | "Meeting" | "Shopping";
+
+export type NotesClientProps = {
+  initialPage: number;
+  initialSearch: string;
+  initialData: FetchNotesRes;
+  initialTag: string;
+};

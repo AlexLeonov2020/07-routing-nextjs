@@ -1,47 +1,47 @@
-'use client';
+"use client";
+import { useRouter } from "next/navigation";
+import { useQuery } from "@tanstack/react-query";
+import { useParams } from "next/navigation";
+import { fetchNoteById } from "@/lib/api";
 
-import css from './NotePreview.module.css';
-import { useRouter } from 'next/navigation';
-import { useQuery } from '@tanstack/react-query';
-import { fetchNoteById } from '@/lib/api';
-import Modal from '@/components/Modal/Modal';
+import Modal from "@/components/Modal/Modal";
+import css from "./NotePreview.module.css";
 
-type Props = {
-    id: string;
-}
+const NotePreview = () => {
+  const router = useRouter();
+  const close = () => router.back();
 
-export default function NotePreview({ id }: Props) {
-    const router = useRouter();
-    
-    const handleClickClose = () => {
-        router.back()
-    };
-   
-    
-    const { data, isLoading, isError } = useQuery({
-        queryKey: ['note', id],
-        queryFn: () => fetchNoteById(id),
-        refetchOnMount: false,
-    });
-    
-     if (isLoading) return <p>Loading, please wait...</p>;
-  if (isError) return <p>Something went wrong.</p>;
-  if (!data) return <p>Note not found</p>
+  const { id } = useParams<{ id: string }>();
 
-    return (
-        <Modal onClose={handleClickClose}>
-        <div className={css.container}>
-	<div className={css.item}>
-	  <div className={css.header}>
-                    <h2>{data.title}</h2>
-	  </div>
-                <p className={css.content}>{data.content}</p>
-                <p className={css.date}>{new Date(data.createdAt).toLocaleString()}</p>
-                </div>
-                <button onClick={handleClickClose} className={css.backBtn}>Close</button>
-            </div>
-            </Modal>
-    );
+  const {
+    data: note,
+    isFetching,
+    error,
+  } = useQuery({
+    queryKey: ["note", id],
+    queryFn: () => fetchNoteById(id),
+    refetchOnMount: false,
+  });
 
+  if (isFetching) return <p>Loading, please wait...</p>;
+  if (error || !note) return <p>Something went wrong.</p>;
 
-}
+  return (
+    <Modal onClose={close}>
+      <div className={css.container}>
+        <div className={css.item}>
+          <div className={css.header}>
+            <h2>{note.title}</h2>
+            <button className={css.backBtn} onClick={close}>
+              Back
+            </button>
+          </div>
+          <p className={css.content}>{note.content}</p>
+          <p className={css.date}>{note.createdAt}</p>
+        </div>
+      </div>
+    </Modal>
+  );
+};
+
+export default NotePreview;

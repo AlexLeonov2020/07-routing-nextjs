@@ -1,30 +1,57 @@
 import axios from "axios";
-import { Note } from "@/types/note";
+import type { CreateNote, Note } from "@/types/note";
 
-const API_URL = "http://localhost:3001/notes"; 
+const myKey = process.env.NEXT_PUBLIC_NOTEHUB_TOKEN;
+const baseUrl = "https://notehub-public.goit.study/api/notes";
 
-interface FetchNotesParams {
-  page?: number;
-  perPage?: number;
-  search?: string;
-  tag?: string;
+export interface FetchNotesRes {
+  notes: Note[];
+  totalPages: number;
 }
 
-export const fetchNotes = async (params: FetchNotesParams = {}): Promise<Note[]> => {
-  const res = await axios.get<Note[]>(API_URL, { params });
-  return res.data;
-};
+export async function fetchNotes(
+  search: string,
+  page: number,
+  tag?: string
+): Promise<FetchNotesRes> {
+  const response = await axios.get<FetchNotesRes>(`${baseUrl}`, {
+    params: {
+      page: page,
+      perPage: 12,
+      ...(search && { search }),
+      ...(tag ? { tag } : {}),
+    },
+    headers: {
+      Authorization: `Bearer ${myKey}`,
+    },
+  });
 
-export const fetchNoteById = async (id: string): Promise<Note> => {
-  const res = await axios.get<Note>(`${API_URL}/${id}`);
-  return res.data;
-};
+  return response.data;
+}
 
-export const createNote = async (note: Omit<Note, "id">): Promise<Note> => {
-  const res = await axios.post<Note>(API_URL, note);
-  return res.data;
-};
+export async function createNote(newNote: CreateNote): Promise<Note> {
+  const response = await axios.post<Note>(`${baseUrl}`, newNote, {
+    headers: {
+      Authorization: `Bearer ${myKey}`,
+    },
+  });
+  return response.data;
+}
 
-export const deleteNote = async (id: string): Promise<void> => {
-  await axios.delete(`${API_URL}/${id}`);
-};
+export async function deleteNote(id: string): Promise<Note> {
+  const response = await axios.delete<Note>(`${baseUrl}/${id}`, {
+    headers: {
+      Authorization: `Bearer ${myKey}`,
+    },
+  });
+  return response.data;
+}
+
+export async function fetchNoteById(id: string): Promise<Note> {
+  const response = await axios.get<Note>(`${baseUrl}/${id}`, {
+    headers: {
+      Authorization: `Bearer ${myKey}`,
+    },
+  });
+  return response.data;
+}
